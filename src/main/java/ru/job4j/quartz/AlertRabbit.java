@@ -3,16 +3,16 @@ package ru.job4j.quartz;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Properties;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.setOut;
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
@@ -32,146 +32,68 @@ import static org.quartz.SimpleScheduleBuilder.*;
  * @since 05.11.2021
  */
 
+
 public class AlertRabbit {
-    private Properties configuration;
-
-    public AlertRabbit(Properties configuration) {
-        this.configuration = configuration;
-    }
-
     public static void main(String[] args) {
-        AlertRabbit alertRabbit = new AlertRabbit(getProperties("rabbit.properties"));
-        try (Connection connection = alertRabbit.init(alertRabbit.configuration)) {
-            alertRabbit.executeScheduler(connection, alertRabbit.configuration);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+//        AlertRabbit alertRabbit = new AlertRabbit();
+        try {
+            Properties properties = new Properties();
+            try (InputStream in = AlertRabbit.class
+                    .getClassLoader()
+                    .getResourceAsStream("rabbit.properties")) {
+                properties.load(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Class.forName(properties.getProperty("db.driver"));
+            try (Connection connection = DriverManager.getConnection(
+                    properties.getProperty("db.url"),
+                    properties.getProperty("db.username"),
+                    properties.getProperty("db.password"))) {
+                Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+                scheduler.start();
+                JobDataMap data = new JobDataMap();
+                data.put("connection", connection);
+
+                JobDetail job = newJob(Rabbit.class)
+                        .usingJobData(data)
+                        .build();
+                SimpleScheduleBuilder times = simpleSchedule()
+                        .withIntervalInSeconds(Integer
+                                .parseInt(properties
+                                        .getProperty("rabbit.interval")))
+                        .repeatForever();
+                Trigger trigger = newTrigger()
+                        .startNow()
+                        .withSchedule(times)
+                        .build();
+                scheduler.scheduleJob(job, trigger);
+                Thread.sleep(10000);
+                scheduler.shutdown();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Метод для получения интервала из .properties
-     *
-     * @param configuration объект Properties
-     * @return значение интервала преобразованный в Integer
-     */
-    public static Integer getInterval(Properties configuration) {
-        return Integer.parseInt(configuration.getProperty("rabbit.interval"));
-    }
-
-    public void executeScheduler(Connection connection,
-                                 Properties properties)
-            throws SchedulerException, InterruptedException {
-        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
-        scheduler.scheduleJob(getJob(connection), getTrigger(properties));
-        Thread.sleep(1000);
-        scheduler.shutdown();
-    }
-
-    /**
-     * Формирование подключения к BD
-     *
-     * @param configuration принимает Properties
-     * @return Connection
-     * @throws SQLException           выбрасовывание исключения
-     * @throws ClassNotFoundException еще исключение
-     */
-    private Connection init(Properties configuration)
-            throws SQLException, ClassNotFoundException {
-        Class.forName(configuration.getProperty("driver-class-name"));
-        return DriverManager.getConnection(
-                configuration.getProperty("urs"),
-                configuration.getProperty("username"),
-                configuration.getProperty("password")
-        );
-    }
-
-    /**
-     * Возвращаем Properties настройки из файла
-     *
-     * @param path путь к файлу в виде строки
-     * @return Properties
-     */
-    private static Properties getProperties(String path) {
-        Properties config = new Properties();
-        try (InputStream in = AlertRabbit.class.getClassLoader()
-                .getResourceAsStream(path)) {
-            config.load(in);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        return config;
-    }
-
-    /**
-     * Метод создает объект и настраивает Job
-     * для Scheduler
-     *
-     * @param connection подключение к базе данных
-     * @return задача, выполняемая классом
-     */
-    private JobDetail getJob(Connection connection) {
-        JobDataMap data = new JobDataMap();
-        data.put("store", connection);
-
-        JobDetail job = newJob(Rabbit.class)
-                .usingJobData(data)
-                .build();
-        return job;
-    }
-
-    private Trigger getTrigger(Properties configuration) {
-        /**
-         * Формирование расписания, настройка переодичности запуска
-         */
-        SimpleScheduleBuilder times = simpleSchedule()
-                .withIntervalInSeconds(
-                        getInterval(configuration))
-                .repeatForever();
-
-        /**
-         * Trigger - объект, обозначающий время для начала запуска.
-         * В нашем случае выполнение происходит сразу.
-         */
-        Trigger trigger = newTrigger()
-                .startNow()
-                .withSchedule(times)
-                .build();
-        return trigger;
-    }
-
-    /**
-     * Задача для использования основного класса
-     */
     public static class Rabbit implements Job {
-        public Rabbit() {
-            System.out.println(hashCode());
-        }
-
-        /**
-         * Метод исполнения Job
-         * Выводит в консоль текст
-         * Получает Connection из контекста
-         * Добавляет новую запись с текущим временем в базу данных в таблицу rabbit
-         *
-         * @param context контекст
-         * @throws JobExecutionException исключение
-         */
         @Override
-        public void execute(JobExecutionContext context) throws
-                JobExecutionException {
+        public void execute(JobExecutionContext context)
+                throws JobExecutionException {
             System.out.println("Rabbit runs here ...");
-            Connection connection = (Connection) context.
-                    getJobDetail()
+            Connection connection = (Connection) context
+                    .getJobDetail()
                     .getJobDataMap()
-                    .get("store");
-
-            try (PreparedStatement statement =
-                         connection.prepareStatement("insert into rabbit(created_date) values (?)")) {
-                statement.setLong(1, System.currentTimeMillis());
-                statement.execute();
-            } catch (Exception exception) {
-                exception.printStackTrace();
+                    .get("connection");
+            try (PreparedStatement preparedStatement =
+                         connection
+                                 .prepareStatement(
+                                         "insert into job(created_date) values(?);")) {
+                preparedStatement.setLong(1, currentTimeMillis());
+                preparedStatement.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
