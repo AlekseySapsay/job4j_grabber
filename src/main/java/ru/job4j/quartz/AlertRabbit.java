@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.setOut;
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
@@ -32,10 +31,8 @@ import static org.quartz.SimpleScheduleBuilder.*;
  * @since 05.11.2021
  */
 
-
 public class AlertRabbit {
     public static void main(String[] args) {
-//        AlertRabbit alertRabbit = new AlertRabbit();
         try {
             Properties properties = new Properties();
             try (InputStream in = AlertRabbit.class
