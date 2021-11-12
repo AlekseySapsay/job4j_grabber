@@ -53,9 +53,11 @@ public class AlertRabbit {
                 JobDataMap data = new JobDataMap();
                 data.put("connection", connection);
 
-                JobDetail job = newJob(Rabbit.class)
-                        .usingJobData(data)
-                        .build();
+//                JobDetail job = newJob(Rabbit.class)
+//                        .usingJobData(data)
+//                        .build();
+                JobDetail job = JobBuilder.newJob(Rabbit.class).build();
+
                 SimpleScheduleBuilder times = simpleSchedule()
                         .withIntervalInSeconds(Integer
                                 .parseInt(properties
