@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static java.lang.System.currentTimeMillis;
-import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
