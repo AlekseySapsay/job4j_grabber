@@ -4,8 +4,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * https://job4j.ru/profile/exercise/56/task-view/355
@@ -28,6 +31,14 @@ public class SqlRuParse {
             System.out.println(href.text());
             Element date = td.parent().child(5);
             System.out.println(date.text());
+
+            SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
+            LocalDateTime localDateTime;
+            localDateTime = sqlRuDateTimeParser.parse(date.text());
+
+            System.out.println(localDateTime.
+                    format(DateTimeFormatter
+                    .ofPattern("dd MMM uuuu HH:mm")));
         }
     }
 }
