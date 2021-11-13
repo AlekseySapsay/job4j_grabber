@@ -30,7 +30,6 @@ public class SqlRuParse {
             System.out.println(href.attr("href"));
             System.out.println(href.text());
             Element date = td.parent().child(5);
-            System.out.println(date.text());
 
             SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
             LocalDateTime localDateTime;
@@ -38,7 +37,7 @@ public class SqlRuParse {
 
             System.out.println(localDateTime.
                     format(DateTimeFormatter
-                    .ofPattern("dd MMM uuuu HH:mm")));
+                    .ofPattern("dd MMM yyyy HH:mm")));
         }
     }
 }
