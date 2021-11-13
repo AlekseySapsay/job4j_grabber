@@ -20,21 +20,14 @@ import java.io.IOException;
 public class SqlRuParse {
     public static void main(String[] args) throws IOException {
         Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
-        //Elements row = doc.select(".postslisttopic");
-        Elements row = doc.select(".altCol");
-
-//        for (Element td : row) {
-//            Element href = td.child(0);
-//            System.out.println(href.attr("href"));
-//            System.out.println("href.text()");
-//        }
+        Elements row = doc.select(".postslisttopic");
 
         for (Element td : row) {
-            Element parent = td.parent();
-            //System.out.println(parent.tag());
-            //System.out.println(parent.children().size());
-            //System.out.println(parent.children().get(5).text());
-            System.out.println(parent.child(5).text());
+            Element href = td.child(0);
+            System.out.println(href.attr("href"));
+            System.out.println("href.text()");
+            Element date = td.parent().child(5);
+            System.out.println(date.text());
         }
     }
 }
