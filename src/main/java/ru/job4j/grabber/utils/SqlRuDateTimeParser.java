@@ -48,16 +48,15 @@ public class SqlRuDateTimeParser implements DateTimeParser {
             int hours = Integer.parseInt(partsOfDate[1]);
             int minutes = Integer.parseInt(partsOfDate[2]);
 
-            LocalDateTime localDateTime1 = LocalDateTime.of(
-                    localDateTimeNow.getYear(),
-                    localDateTimeNow.getMonth(),
-                    localDateTimeNow.getDayOfMonth(),
-                    hours, minutes, 0, 0);
-
             if (parse.contains("сегодня")) {
-                return localDateTime1;
+                return localDateTimeNow.
+                        withHour(hours)
+                        .withMinute(minutes);
             } else if (parse.contains("вчера")) {
-                return localDateTime1.minusDays(1);
+                return localDateTimeNow
+                        .withHour(hours)
+                        .withMinute(minutes)
+                        .minusDays(1);
             }
         }
 
