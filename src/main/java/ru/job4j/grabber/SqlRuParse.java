@@ -1,13 +1,11 @@
 package ru.job4j.grabber;
 
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.model.Post;
 import ru.job4j.grabber.utils.DateTimeParser;
-import ru.job4j.grabber.utils.PostLoader;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 import java.io.IOException;
@@ -43,20 +41,14 @@ public class SqlRuParse implements Parse {
      */
     @Override
     public List<Post> list(String link) throws IOException {
-        //SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
         List<Post> postList = new ArrayList<>();
         Document document = Jsoup.connect(link).get();
-        Elements row = document.select(".postlisttopic");
+        Elements row = document.select(".postslisttopic");
 
         for (Element td : row) {
             Element href = td.child(0);
-            Element date = td.parent().child(5);
-
-            SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
-            LocalDateTime localDateTime = sqlRuDateTimeParser.parse(date.text());
-            postList.add(new Post());
+            postList.add(detail(href.attr("href")));
         }
-
         return postList;
     }
 
@@ -68,39 +60,31 @@ public class SqlRuParse implements Parse {
      */
     @Override
     public Post detail(String link) throws IOException {
-        Document document = Jsoup.connect(link).get();
         Post post = new Post();
+        Document document = Jsoup.connect(link).get();
         String text = document.select(".msgBody").get(1).text();
         String footer = document.select(".msgFooter").get(0).text();
         String header = document.select(".messageHeader").get(0).text();
-        int indexOfDate = footer.indexOf(":");
-//        SqlRuDateTimeParser sqlRuDateTimeParser = new SqlRuDateTimeParser();
-//        LocalDateTime created = sqlRuDateTimeParser
-//                .parse(footer.substring(0, indexOfDate + 2));
-
-        LocalDateTime created1 = dateTimeParser.parse(footer.substring(0, indexOfDate + 2));
+        LocalDateTime created = dateTimeParser.parse(footer
+                .substring(0, footer.indexOf(":") + 2));
 
         post.setLink(link);
         post.setTitle(header);
         post.setDescription(text);
-        post.setCreated(created1);
-
-
-
-//        SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
-//        PostLoader postLoader = new PostLoader();
-
+        post.setCreated(created);
         return post;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param parse
-     * @return
-     */
-//    @Override
-//    public LocalDateTime parse(String parse) {
-//        return null;
-//    }
+    public static void main(String[] args) throws IOException {
+        DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
+        SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
+        List<Post> postList = sqlRuParse.list("https://www.sql.ru/forum/job-offers/2");
+
+        for (Post post : postList) {
+            System.out.println(post.getTitle());
+            System.out.println(post.getDescription());
+            System.out.println(post.getLink());
+            System.out.println(post.getCreated());
+        }
+    }
 }
