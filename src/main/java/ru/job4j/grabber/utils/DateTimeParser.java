@@ -15,5 +15,13 @@ import java.time.LocalDateTime;
  */
 
 public interface DateTimeParser {
+    /**
+     * Парсинг html страницы средствами jsoup.
+     * Преобразование даты из формата с сайта sql.ru
+     * в дату понятную java.
+     *
+     * @param parse строка содержащая дату
+     * @return дата в формате LocalDateTime
+     */
     LocalDateTime parse(String parse);
 }

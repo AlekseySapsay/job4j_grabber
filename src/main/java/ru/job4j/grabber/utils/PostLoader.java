@@ -2,7 +2,7 @@ package ru.job4j.grabber.utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import ru.job4j.Post;
+import ru.job4j.grabber.model.Post;
 
 import java.time.LocalDateTime;
 
