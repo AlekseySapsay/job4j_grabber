@@ -37,7 +37,7 @@ public class SqlRuParse implements Parse {
      * {@inheritDoc}
      *
      * @param link ссылка на форум для парсинга
-     * @return
+     * @return список постов после парсинга
      */
     @Override
     public List<Post> list(String link) throws IOException {
@@ -56,7 +56,7 @@ public class SqlRuParse implements Parse {
      * {@inheritDoc}
      *
      * @param link ссылка на пост для парсинга
-     * @return
+     * @return возвращаем детали поста Post
      */
     @Override
     public Post detail(String link) throws IOException {
@@ -78,7 +78,13 @@ public class SqlRuParse implements Parse {
     public static void main(String[] args) throws IOException {
         DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
         SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
-        List<Post> postList = sqlRuParse.list("https://www.sql.ru/forum/job-offers/2");
+        List<Post> postList = new ArrayList<>();
+
+        for (int i = 1; i < 6; i++) {
+            List<Post> postListBuffer =
+                    sqlRuParse.list("https://www.sql.ru/forum/job-offers/" + i);
+            postList.addAll(postListBuffer);
+        }
 
         for (Post post : postList) {
             System.out.println(post.getTitle());
