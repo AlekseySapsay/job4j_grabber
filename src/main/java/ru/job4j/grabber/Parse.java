@@ -1,7 +1,5 @@
 package ru.job4j.grabber;
 
-import ru.job4j.grabber.model.Post;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -20,14 +18,23 @@ import java.util.List;
  * Метод detail загружает все детали одного поста
  * (имя, описание, дату обновления, дату создания, ссылки на пост).
  *
+ * Описание компонента через интерфейс позволяет расширить наш проект.
+ *
+ * Например, осуществить сбор данных с других площадок:
+ * SqlRuParse, HhRuParse, SuperJobParse.
+ *
  * @author AlexSapsay (sapsayalexey@gmail.com)
  * @version 1.0
- * @since 16.11.2021
+ * @since 21.11.2021
  */
 
 public interface Parse {
     /**
      * Метод list загружает список всех постов.
+     * list(link) - этот метод загружает список
+     *  объявлений по ссылке типа
+     * - https://www.sql.ru/forum/job-offers/1
+     *
      * @param link ссылка на форум для парсинга
      * @return список постов после парсинга
      */
@@ -35,7 +42,11 @@ public interface Parse {
 
     /**
      * Метод detail загружает все детали одного поста
-     * (имя, описание, дату обновления, дату создания, ссылки на пост).
+     * (имя, описание, дату обновления, дату создания,
+     * ссылки на пост).
+     * detail(link) - этот метод загружает детали объявления
+     * по ссылке типа
+     * - https://www.sql.ru/forum/1323839/razrabotchik-java-g-kazan
      * @param link ссылка на пост для парсинга
      * @return возвращаем детали поста Post
      */
