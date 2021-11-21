@@ -12,19 +12,23 @@ package ru.job4j.gc;
 
 public class User {
     private String name;
-    private int age;
-    private char sex;
-    private int salary;
+    private String surname;
 
-    public User(String name, int age, char sex, int salary) {
+    public User(String name, String surname) {
         this.name = name;
-        this.age = age;
-        this.sex = sex;
-        this.salary = salary;
+        this.surname = surname;
     }
 
     public User() {
 
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getName() {
@@ -33,40 +37,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public char getSex() {
-        return sex;
-    }
-
-    public void setSex(char sex) {
-        this.sex = sex;
-    }
-
-    public int getSalary() {
-        return salary;
-    }
-
-    public void setSalary(int salary) {
-        this.salary = salary;
-    }
-
-    @Override
-    public String toString() {
-        return "User{"
-                + "name='" + name + '\''
-                + ", age=" + age
-                + ", sex=" + sex
-                + ", salary=" + salary
-                + '}';
     }
 
     @Override
@@ -80,24 +50,16 @@ public class User {
 
         User user = (User) o;
 
-        if (age != user.age) {
+        if (name != null ? !name.equals(user.name) : user.name != null) {
             return false;
         }
-        if (sex != user.sex) {
-            return false;
-        }
-        if (salary != user.salary) {
-            return false;
-        }
-        return name != null ? name.equals(user.name) : user.name == null;
+        return surname != null ? surname.equals(user.surname) : user.surname == null;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + age;
-        result = 31 * result + (int) sex;
-        result = 31 * result + salary;
+        result = 31 * result + (surname != null ? surname.hashCode() : 0);
         return result;
     }
 
