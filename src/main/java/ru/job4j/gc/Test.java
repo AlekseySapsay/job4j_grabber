@@ -13,6 +13,8 @@ public class Test {
 
         System.out.println("sizeOf(user1.getName())" + sizeOf(user1.getName()));
         System.out.println("sizeOf(user1.getSurname())" + sizeOf(user1.getSurname()));
+        System.out.println("user1.getName() + user1.getSurname()"
+                + sizeOf(user1.getName() + user1.getSurname()));
 
 
         System.out.println("Finalazy statr");
