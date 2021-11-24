@@ -43,86 +43,30 @@ public class SqlRuParse implements Parse {
      */
     @Override
     public List<Post> list(String link) throws IOException {
-        List<String> listKeyWords = new ArrayList<>();
-        listKeyWords = List.of(" java ", " Java ");
-        //System.out.println("String link " + link);
-
-
         List<String> listLinks = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
             listLinks.add(link + i);
         }
 
         List<Post> postListRow = new ArrayList<>();
-
         for (String linkList : listLinks) {
             Document document = Jsoup.connect(linkList).get();
             Elements row = document.select(".postslisttopic");
-            //System.out.println("row : " + row);
 
             for (Element td : row) {
                 Element href = td.child(0);
-                postListRow.add(detail(href.attr("href")));
+
+                Post post = detail(href.attr("href"));
+
+                if (!post.getTitle().contains(" java ")
+                        && !post.getTitle().contains("java ")
+                        && !post.getTitle().contains(" Java ")
+                        && !post.getTitle().contains("Java ")) {
+                    continue;
+                }
+                postListRow.add(post);
             }
         }
-
-        //remove element from postList if not contains " java " or " Java ".
-        // first solution1
-//        List<Post> postListClear = new ArrayList<>();
-//        for (Post post : postListRow) {
-//            if (post.getTitle().contains(" java ")
-//                    || post.getTitle().contains(" Java ")
-//                    || post.getTitle().contains("Java ")
-//                    || post.getTitle().contains("java ")) {
-//                postListClear.add(post);
-//            }
-//        }
-
-        //remove element from postList if not contains " java " or " Java ".
-        // second solution2
-        //List<Post> postListClear2 = new ArrayList<>();
-        postListRow.removeIf(
-                x -> !x.getTitle().contains(" java ")
-                        && !x.getTitle().contains("java ")
-                        && !x.getTitle().contains(" Java ")
-                        && !x.getTitle().contains("Java "));
-//        for (Post post : postListRow) {
-//            if (post.getTitle().contains(" java ")
-//                    || post.getTitle().contains(" Java ")
-//                    || post.getTitle().contains("Java ")
-//                    || post.getTitle().contains("java ")) {
-//                postListClear.add(post);
-//            }
-//        }
-
-
-        // получаем html отдельной странички по link
-        //System.out.println("document : " + document);
-
-
-//        DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
-//        SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
-        //List<Post> postList = new ArrayList<>();
-
-        //условие для фильтрации по ключевым словам.
-//        if (document.select(".postslisttopic").contains(" Java ")
-//                || document.select(".postslisttopic").contains(" java ")) {
-//            Elements row = document.select(".postslisttopic");
-//
-//            for (Element td : row) {
-//                Element href = td.child(0);
-//                postList.add(detail(href.attr("href")));
-//            }
-//        }
-
-
-//        for (Post post : postList) {
-//            System.out.println("post from postList" + post);
-//        }
-
-
-        //Elements row = document.select(".postslisttopic").contains(" Java ", " java ");
-
         return postListRow;
     }
 
@@ -152,22 +96,14 @@ public class SqlRuParse implements Parse {
     public static void main(String[] args) throws IOException {
         DateTimeParser dateTimeParser = new SqlRuDateTimeParser();
         SqlRuParse sqlRuParse = new SqlRuParse(dateTimeParser);
-        List<Post> postList = new ArrayList<>();
-        postList = sqlRuParse.list("https://www.sql.ru/forum/job-offers/");
 
-
-//        for (int i = 1; i < 6; i++) {
-//            List<Post> postListBuffer =
-//                    sqlRuParse.list("https://www.sql.ru/forum/job-offers/");
-        //postList.addAll(postListBuffer);
-        //       }
+        List<Post> postList = sqlRuParse.list("https://www.sql.ru/forum/job-offers/");
 
         for (Post post : postList) {
             System.out.println(post.getTitle());
-            //System.out.println(post.getDescription());
-            //System.out.println(post.getLink());
-            //System.out.println(post.getCreated());
+            System.out.println(post.getDescription());
+            System.out.println(post.getLink());
+            System.out.println(post.getCreated());
         }
-        System.out.println("postList.size() :" + postList.size());
     }
 }
