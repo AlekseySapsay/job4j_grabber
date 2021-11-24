@@ -24,7 +24,6 @@ import java.util.List;
  * @version 1.0
  * @since 16.11.2021
  */
-
 public class SqlRuParse implements Parse {
     private final DateTimeParser dateTimeParser;
 
