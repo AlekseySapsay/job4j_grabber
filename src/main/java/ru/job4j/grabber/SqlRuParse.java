@@ -57,10 +57,8 @@ public class SqlRuParse implements Parse {
 
                 Post post = detail(href.attr("href"));
 
-                if (!post.getTitle().contains(" java ")
-                        && !post.getTitle().contains("java ")
-                        && !post.getTitle().contains(" Java ")
-                        && !post.getTitle().contains("Java ")) {
+                if (!post.getTitle().toLowerCase().contains(" java ")
+                        && !post.getTitle().toLowerCase().contains("java ")) {
                     continue;
                 }
                 postListRow.add(post);
@@ -83,7 +81,7 @@ public class SqlRuParse implements Parse {
         String footer = document.select(".msgFooter").get(0).text();
         String header = document.select(".messageHeader").get(0).text();
         LocalDateTime created = dateTimeParser.parse(footer
-                .substring(0, footer.indexOf(":") + 2));
+                .substring(0, footer.indexOf("[") + 2));
 
         post.setLink(link);
         post.setTitle(header);
