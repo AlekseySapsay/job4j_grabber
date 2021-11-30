@@ -42,21 +42,14 @@ public class SqlRuParse implements Parse {
      */
     @Override
     public List<Post> list(String link) throws IOException {
-        List<String> listLinks = new ArrayList<>();
-        for (int i = 1; i < 6; i++) {
-            listLinks.add(link + i);
-        }
-
         List<Post> postListRow = new ArrayList<>();
-        for (String linkList : listLinks) {
-            Document document = Jsoup.connect(linkList).get();
+        for (int i = 1; i < 6; i++) {
+            Document document = Jsoup.connect(link + i).get();
             Elements row = document.select(".postslisttopic");
 
             for (Element td : row) {
                 Element href = td.child(0);
-
                 Post post = detail(href.attr("href"));
-
                 if (!post.getTitle().toLowerCase().contains(" java ")
                         && !post.getTitle().toLowerCase().contains("java ")) {
                     continue;
