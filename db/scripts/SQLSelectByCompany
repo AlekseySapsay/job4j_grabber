@@ -1,0 +1,50 @@
+create table  if not exists company(
+    id integer not null,
+    name character varying,
+    constraint company_pkey primary key (id)
+);
+
+
+create table if not exists person(
+    id integer not null,
+    name character varying,
+    company_id integer references company(id),
+    constraint person_pkey primary key (id)
+);
+
+insert into company(id, name)
+values (1,'Melkosoft')
+VALUES (2,'Bolshev')
+VALUES (3,'Jaba')
+VALUES (4,'Kolik')
+VALUES (5,'Loork');
+
+select * from company;
+
+insert into person(id, name, company_id)
+values(2,'Ivanof',1)
+VALUES(4,'Petrof',2)
+VALUES(3,'SIDOROF',3)
+VALUES(6,'LIPOF',3)
+VALUES(5,'MOHOF',4)
+VALUES(1,'KONUNOF',5);
+VALUES(7,'BULOf',5);
+
+select * from person;
+
+--1. В одном запросе получить имена всех person, которые не состоят
+--в компании с id = 5;
+-- название компании для каждого человека.
+
+select person.name as person, company.name as company from company
+inner join person on  company.id = person.company_id
+where company.id not in (5);
+
+--2  Необходимо выбрать название компании с максимальным
+--количеством человек + количество человек в этой компании.
+select company.name as company, count(company.name) as numberOfEmployees
+from company
+inner join person on company.id = person.company_id
+group by company.name
+having count(company.name) = (select count( company_id) as c_id from person
+							 group by company_id order by c_id desc limit 1)
